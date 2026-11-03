@@ -9,25 +9,28 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      home: AuthPage(),
     );
   }
 }
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class AuthPage extends StatefulWidget {
+  const AuthPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<AuthPage> createState() => _AuthPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _AuthPageState extends State<AuthPage> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmController = TextEditingController();
+
+  bool _isLogin = true; // true = Sign In, false = Create Account
   bool _obscure = true;
 
-  // Colors taken from the two designs
   static const peach = Color(0xFFE8C4B8);
   static const navy = Color(0xFF2B2740);
   static const yellow = Color(0xFFFFEB3B);
@@ -37,15 +40,28 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmController.dispose();
     super.dispose();
   }
 
-  void _signIn() {
+  void _toggleMode() {
+    setState(() {
+      _isLogin = !_isLogin;
+      _formKey.currentState?.reset();
+    });
+  }
+
+  void _submit() {
     if (_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Signed in successfully')),
+        SnackBar(
+          content: Text(
+            _isLogin ? 'Signed in successfully' : 'Account created successfully',
+          ),
+        ),
       );
     }
   }
@@ -102,7 +118,6 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Heading (image 1 style, with yellow highlight word)
                   const Center(
                     child: Text.rich(
                       TextSpan(
@@ -123,16 +138,31 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Center(
+                  Center(
                     child: Text(
-                      'Login, type in what you need and receive a free quote in seconds',
+                      _isLogin
+                          ? 'Login, type in what you need and receive a free quote in seconds'
+                          : 'Create an account, type in what you need and receive a free quote in seconds',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white, fontSize: 15),
+                      style: const TextStyle(color: Colors.white, fontSize: 15),
                     ),
                   ),
                   const SizedBox(height: 28),
 
-                  // Email (image 2 style)
+                  // Full name (Create Account only)
+                  if (!_isLogin) ...[
+                    _label('Full Name'),
+                    TextFormField(
+                      controller: _nameController,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: _inputDecoration('Enter your full name'),
+                      validator: (v) => (v == null || v.trim().isEmpty)
+                          ? 'Name is required'
+                          : null,
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+
                   _label('Email'),
                   TextFormField(
                     controller: _emailController,
@@ -148,7 +178,6 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Password
                   _label('Password'),
                   TextFormField(
                     controller: _passwordController,
@@ -171,9 +200,22 @@ class _LoginPageState extends State<LoginPage> {
                       return null;
                     },
                   ),
+
+                  // Confirm password (Create Account only)
+                  if (!_isLogin) ...[
+                    const SizedBox(height: 20),
+                    _label('Confirm Password'),
+                    TextFormField(
+                      controller: _confirmController,
+                      obscureText: _obscure,
+                      decoration: _inputDecoration('Confirm your Password'),
+                      validator: (v) => v != _passwordController.text
+                          ? 'Passwords do not match'
+                          : null,
+                    ),
+                  ],
                   const SizedBox(height: 28),
 
-                  // Gradient pill button (image 2 style)
                   SizedBox(
                     width: double.infinity,
                     height: 58,
@@ -185,7 +227,7 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: ElevatedButton(
-                        onPressed: _signIn,
+                        onPressed: _submit,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
@@ -193,13 +235,38 @@ class _LoginPageState extends State<LoginPage> {
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        child: const Text(
-                          'Sign In',
-                          style: TextStyle(
+                        child: Text(
+                          _isLogin ? 'Sign In' : 'Create Account',
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
                           ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Switch between Sign In and Create Account
+                  Center(
+                    child: TextButton(
+                      onPressed: _toggleMode,
+                      child: Text.rich(
+                        TextSpan(
+                          text: _isLogin
+                              ? "Don't have an account? "
+                              : 'Already have an account? ',
+                          style: const TextStyle(color: Colors.white70),
+                          children: [
+                            TextSpan(
+                              text: _isLogin ? 'Create Account' : 'Sign In',
+                              style: const TextStyle(
+                                color: yellow,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
