@@ -1,4 +1,4 @@
-# flutter-login-app
+<img width="224" height="374" alt="Screenshot 2026-11-03 051207" src="https://github.com/user-attachments/assets/e66d2f8b-6630-4401-b432-432cd7629395" /># flutter-login-app
 A simple login interface built using Flutter and Dart as part of my journey into mobile application development.
 ## Features
 - Simple and clean login interface.
@@ -6,5 +6,6 @@ A simple login interface built using Flutter and Dart as part of my journey into
 - Password input field.
 - Sign in button.
 ## A Screenshot
-<img width="959" height="539" alt="Screenshot 2026-11-03 031906" src="https://github.com/user-attachments/assets/e05f2178-36c7-4844-9c07-4a55e4ba7410" />
+<img width="224" height="374" alt="Screenshot 2026-11-03 051207" src="https://github.com/user-attachments/assets/bb1b59b9-5c00-4205-bb2e-6264fc69d77a" />
+
 
